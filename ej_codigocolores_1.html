@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>resistencias1</title>
+<link rel="stylesheet" href="http://apuntesmareaverde.org.es/com/estilo.css" type="text/css">
+<style type="text/css">
+td{
+text-align: center;
+
+}
+
+input{
+text-align: center;
+}
+.oculto{
+display: none;
+}
+.visible{
+display: block;
+}
+
+.ejercicio{
+font-size: 200%;
+}
+
+.bien{
+color: green;
+font-weight: bolder; 
+text-align: left; 
+
+}
+
+.mal{
+color: red;
+font-weight: bolder; 
+text-align: left; 
+}
+
+</style>
+<script type="text/javascript" >
+var color = ["black","brown","red", "orange","yellow","green", "blue", "purple", "grey", "white"];
+var banda =[];
+var valor =0;
+var tiempoEjercicio = 3; //tiempo del ejercicio en minutos
+var intentos = 0;
+var puntos = 0;
+var tiempo;
+var horaInicio = Date.now();
+
+var colorVida= '#ffff00';
+
+function dato(menor,mayor,decimales) {// funcion para conseguir datos aleatorios
+var d = Math.round((Math.random()*(mayor-menor)+menor)*Math.pow(10,decimales))/Math.pow(10,decimales);
+return d;	
+}
+
+
+function normalizaCadena(cadena) {//para normalizar distintas formas de escribir una cadena
+
+for (i=0;i<cadena.length;i++) {
+cadena = cadena.replace('kilo','000');
+cadena = cadena.replace('mega','000000');
+cadena = cadena.replace(' ','');//elimina  espacios 
+
+}
+
+return cadena;
+
+}
+
+
+function separaUnidadesDeMagnitud(cadena) {// separa unidades de magnitud
+var indiceFrontera = 0;
+var solucion =[ 'magnitud', 'unidad'];
+	for (i=0; i<cadena.length; i++) {
+	
+		if (cadena[i] == '0' ||
+			 cadena[i] == '1' ||
+			 cadena[i] == '2' ||
+			 cadena[i] == '3' ||
+			 cadena[i] == '4' ||
+			 cadena[i] == '5' ||
+			 cadena[i] == '6' ||
+			 cadena[i] == '7' ||
+			 cadena[i] == '8' ||
+			 cadena[i] == '9' ||
+			 cadena[i] == '.' ) {
+			 indiceFrontera = i;
+			
+		}
+		
+	}
+	
+	solucion[0] = cadena.slice(0, indiceFrontera+1);
+	solucion[1] = cadena.slice(indiceFrontera+1,cadena.length);
+	return solucion;
+}
+
+function comprobar() {
+		intentos=intentos+1;
+		okMensaje = '';
+		
+
+	
+		var resultadoAlumno = document.getElementById('resistencia').value;
+		
+		resultadoAlumno = normalizaCadena(resultadoAlumno);
+		
+		var resultadoAlumno =  separaUnidadesDeMagnitud(resultadoAlumno)
+			
+		var okResultadoMagnitud = Math.abs(resultadoAlumno[0] - valor)/valor < 0.01;
+		var okResultadoUnidad = resultadoAlumno[1] == "ohmios";
+		var okResultado = okResultadoMagnitud && okResultadoUnidad;
+		var okMensaje ='';
+		
+		if (okResultado) {
+		okMensaje = 'Lo has hecho bien';
+		document.getElementById('ok').setAttribute('class','bien');
+		document.getElementById('ejercicio').setAttribute('class','visible');
+		document.getElementById('comprobar').setAttribute('class','oculto');
+		puntos = puntos +1;	
+		}else{
+		document.getElementById('ok').setAttribute('class','mal');
+		okMensaje = 'Lo has hecho mal.';
+		 if (!okResultadoMagnitud) {okMensaje = okMensaje + ' La cantidad está mal.'
+		 	
+		 }
+		 if (!okResultadoUnidad) {okMensaje = okMensaje + ' Las unidades están mal.'
+		 	
+		 }
+			
+		}
+						
+				document.getElementById('ok').innerHTML=okMensaje;
+			
+				document.getElementById('puntos').innerHTML= 'Llevas '+puntos+' punto de '+intentos;
+				
+	
+			
+}
+
+
+function inicio() {
+
+var codigo = '<tr><th>color</th>';
+
+
+for (i=0;i<10;i++) {
+	codigo = codigo +'<td  width= "20px" style="background-color:'+color[i]+';"> </td>';
+}
+	
+codigo = codigo +'</tr><tr><th>valor</th>';
+
+for (i=0;i<10;i++) {
+	codigo = codigo +'<td >'+i+'</td>';
+
+}
+codigo = codigo + '</tr>'
+document.getElementById('codigo').innerHTML=codigo;
+document.getElementById('tiempo').innerHTML=tiempoEjercicio;
+setInterval( 'vida()', 100*tiempoEjercicio);
+ejercicio();
+	
+}
+
+function ejercicio(){
+document.getElementById('resistencia').value='';
+for (i=1; i<=3;i++){
+ banda[i] = dato(0,9,0);
+
+var aux2 = 'banda'+i;
+document.getElementById(aux2).style.backgroundColor = color[banda[i]];
+}
+valor=Math.pow(10,banda[3])*(10*banda[1]+banda[2]);
+
+document.getElementById('ejercicio').setAttribute('class','oculto');
+		document.getElementById('comprobar').setAttribute('class','visible');
+}
+
+
+var varVida = 0;
+function vida() {
+	
+
+	var canvas = document.getElementById('canvas');
+	var contexto=canvas.getContext('2d');
+	
+	contexto.fillStyle = colorVida;
+	contexto.fillRect(0, 0, 800, 10);
+	contexto.clearRect(600, 0, varVida, 10);
+	varVida = varVida - 1;
+	if (varVida < -600) {//cuando termina el tiempo del ejercicio
+	document.getElementById('ejercicio').setAttribute('class','oculto');
+	document.getElementById('ok').setAttribute('class','oculto');
+	document.getElementById('comprobar').setAttribute('class','oculto');
+	document.getElementById('puntos').setAttribute('class','bien');
+	document.getElementById('puntos').innerHTML= 'Se ha terminado el tiempo del ejercicio. Has conseguido '+puntos+' punto de '+intentos+ ' intentos';	
+	}
+	
+
+}
+</script>
+</head>
+<body onload="inicio()">
+<h1>Ejercicios de código de colores</h1>
+<p>Tiempo de ejercicio: <span id="tiempo"></span> minutos.</p>
+
+<table border="1" id="codigo">
+
+
+
+
+
+</table>
+<p>Calcula el valor nominal de la siguiente resistencia</p>
+<div  >
+<div style="width: 310px; height: 2px; background-color: #000000; position: relative; top: 33px;left: 70px;"></div>
+<div style="position: relative; left: 100px; ">
+<table bgcolor="#aaA000" border="0" cellpadding="0" cellspacing="0">
+
+<tr>
+<td width="20"><br /><br /><br /><br /></td>
+<td width="20" id="banda1"></td>
+<td width="20"></td>
+<td width="20" id="banda2"></td>
+<td width="20"></td>
+<td width="20" id="banda3"></td>
+<td width="130"></td>
+
+</tr>
+
+</table></div>
+
+</div>
+
+<p>Valor nominal = <input id="resistencia" type="text" size="30" id="x">
+<input id="comprobar"  value="comprobar" type="submit" onclick="comprobar()">
+<input id="ejercicio"  value="otro ejercicio" type="submit" onclick="ejercicio()"></p>
+<p id="ok" ></p>
+<p id="puntos"></p>
+
+
+<div><canvas id="canvas" width="600" height="20"></canvas>   </div>
+<footer>
+<hr>
+
+<p>Autor: Santiago Camblor</p>
+
+<p>Todos nuestros materiales tienen licencia creative commons que permite el uso y modificación del material siempre que no sea con fines comerciales, se cite la autoría y se mantenga el mismo tipo de licencia en las modificaciones de la obra.</p>
+<table  width="50%" align="center">
+<tr>
+<td><img src="http://apuntesmareaverde.org.es/com/Marea_Verde2.png" alt=""></td>
+<td><img src="http://apuntesmareaverde.org.es/com/cc.png" alt="" ></td>
+</tr>
+</table>
+</footer>
+</body>
+</html>
